@@ -29,7 +29,7 @@ let counts=areas.map(a=>({area:a,items:db.indicators.filter(x=>x.area===a)}));
 for(let x of counts){
  let r=add(q,"div");r.style.marginBottom="18px";
  let verified=x.items.filter(i=>i.status==="Verified").length;
- add(r,"h3",x.area+" · "+verified+"/"+x.items.length+" verified");
+ let heading=add(r,"div");heading.style.cssText="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap";add(heading,"h3",x.area+" · "+verified+"/"+x.items.length+" verified");heading.append(button("Edit indicators",()=>{active=1;render();let match=[...document.querySelectorAll("table tbody tr, table tr")].find(tr=>tr.textContent.includes(x.area));if(match)match.scrollIntoView({behavior:"smooth",block:"center"})}));
  if(!x.items.length){add(r,"p","No indicators recorded yet.","muted");continue}
  x.items.forEach(item=>{
   let raw=String(item.value??"").replace(/,/g,"").trim(),targetRaw=String(item.target??"").replace(/,/g,"").trim();
@@ -38,7 +38,7 @@ for(let x of counts){
   if(!Number.isFinite(actual)||!Number.isFinite(target)||target<=0){add(r,"p",item.name+" — No comparable numeric target","muted");continue}
   let pct=Math.max(0,Math.min(100,actual/target*100));
   add(r,"p",label+" · "+Math.round(actual/target*100)+"% of target · "+(item.status==="Verified"?"Verified":"Provisional ("+(item.status||"Unverified")+")"));
-  let bar=add(r,"div",undefined,"progress");let fill=add(bar,"span");fill.style.width=pct+"%";fill.style.background=item.status==="Verified"?"#3579c7":"#cf9236";
+  let actions=add(r,"div",undefined,"actions");actions.style.margin="4px 0";actions.append(button("Edit value / target",()=>{let idx=db.indicators.indexOf(item);active=1;render();edit("indicators",indicatorCols,idx)}));let bar=add(r,"div",undefined,"progress");let fill=add(bar,"span");fill.style.width=pct+"%";fill.style.background=item.status==="Verified"?"#3579c7":"#cf9236";
  })
 }let alerts=panel(root,"Priority decisions");let items=db.actions.filter(x=>x.status!=="Completed").slice().sort((a,b)=>(a.priority==="High"?-1:1)-(b.priority==="High"?-1:1)).slice(0,8);table(alerts,items,[["task","Action"],["owner","Owner"],["due","Due"],["priority","Priority"],["status","Status"]]);add(alerts,"p","Readiness here measures internal record completeness only, not an official accreditation result.","muted")}
 function indicators(root){register(root,"indicators","Institutional Indicator Register",indicatorCols)}
