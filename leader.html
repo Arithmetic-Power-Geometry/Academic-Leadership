@@ -93,7 +93,8 @@ reviews:[
 {meeting:"Institutional strategy review",date:"2026-11-02",body:"Academic Council",decision:"Review faculty development and graduate outcomes",owner:"Dean Academics",due:"2026-11-15",followup:"Scheduled"}]
 };
 function loadDemo(){if(!confirm("Load fictional demonstration records? This replaces the command-centre data in this browser. Export a backup first if needed."))return;db=JSON.parse(JSON.stringify(SAMPLE));normalize();save();render();$("notice").textContent="Demonstration loaded: fictional institutional records. Not actual NAAC or NIRF results."}
-let bar=document.createElement("div");bar.className="actions no-print";bar.id="demoTools";let load=button("Load complete demo data",loadDemo,"primary"),backup=button("Back up my data",()=>file("alis-backup.json",JSON.stringify(db,null,2),"application/json"));bar.append(load,backup);$("tabs").before(bar);
+function downloadDemo(){file("academic-leadership-demo.json",JSON.stringify(SAMPLE,null,2),"application/json")}
+let bar=document.createElement("div");bar.className="actions no-print";bar.id="demoTools";let load=button("Load complete demo data",loadDemo,"primary"),backup=button("Back up my data",()=>file("alis-backup.json",JSON.stringify(db,null,2),"application/json"));bar.append(load,button("Download demo JSON",downloadDemo),button("Upload demo / backup JSON",()=>$("upload").click()),backup);$("tabs").before(bar);
 const oldRender=render;render=function(){oldRender();let root=$("app");let info=HELP[active];let box=document.createElement("section");box.className="guide";let title=add(box,"h3","How to use: "+tabs[active]);add(box,"p",info[0]);add(box,"p","What to do: "+info[1]);add(box,"p","Leadership decision: "+info[2]);root.prepend(box);if(db.org.includes("DEMONSTRATION")){let b=add(box,"p","DEMONSTRATION DATA — Fictional examples only. Do not use for official reporting.","demo-banner")}};
 render();
 })();
