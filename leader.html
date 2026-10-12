@@ -92,10 +92,29 @@ reviews:[
 {meeting:"Research performance review",date:"2026-10-22",body:"Research Advisory Committee",decision:"Validate publication source records",owner:"Dean Research",due:"2026-10-25",followup:"In progress"},
 {meeting:"Institutional strategy review",date:"2026-11-02",body:"Academic Council",decision:"Review faculty development and graduate outcomes",owner:"Dean Academics",due:"2026-11-15",followup:"Scheduled"}]
 };
+if(db.indicators.length===0&&db.evidence.length===0&&db.actions.length===0&&db.strategy.length===0&&db.reviews.length===0&&db.nirf.length===0&&db.risks.length===0&&!localStorage.getItem("alis-demo-initialized-v1")){db=JSON.parse(JSON.stringify(SAMPLE));localStorage.setItem("alis-demo-initialized-v1","yes");save()}
 function loadDemo(){if(!confirm("Load fictional demonstration records? This replaces the command-centre data in this browser. Export a backup first if needed."))return;db=JSON.parse(JSON.stringify(SAMPLE));normalize();save();render();$("notice").textContent="Demonstration loaded: fictional institutional records. Not actual NAAC or NIRF results."}
 function downloadDemo(){file("academic-leadership-demo.json",JSON.stringify(SAMPLE,null,2),"application/json")}
 let bar=document.createElement("div");bar.className="actions no-print";bar.id="demoTools";let load=button("Load complete demo data",loadDemo,"primary"),backup=button("Back up my data",()=>file("alis-backup.json",JSON.stringify(db,null,2),"application/json"));bar.append(load,button("Download demo JSON",downloadDemo),button("Upload demo / backup JSON",()=>$("upload").click()),backup);$("tabs").before(bar);
-const oldRender=render;render=function(){oldRender();let root=$("app");let info=HELP[active];let box=document.createElement("section");box.className="guide";let title=add(box,"h3","How to use: "+tabs[active]);add(box,"p",info[0]);add(box,"p","What to do: "+info[1]);add(box,"p","Leadership decision: "+info[2]);root.prepend(box);if(db.org.includes("DEMONSTRATION")){let b=add(box,"p","DEMONSTRATION DATA — Fictional examples only. Do not use for official reporting.","demo-banner")}};
+function leaderStart(){
+let root=$("app");if(active!==0)return;
+let hero=document.createElement("section");hero.className="panel";
+hero.style.cssText="border-left:5px solid #2862bd;background:linear-gradient(110deg,#fff,#edf4ff)";
+add(hero,"h2","Your daily leadership briefing");
+add(hero,"p","Review institutional performance, check evidence, assign actions, and prepare a verified report. All initial records are fictional demonstrations.");
+let steps=add(hero,"div",undefined,"grid");
+const journey=[["1 · Review","Examine indicators, evidence gaps and unresolved risks.",0],["2 · Verify","Check the indicator register and supporting evidence.",1],["3 · Act","Assign corrective action, owner and deadline.",3],["4 · Report","Prepare a university-branded leadership report.",7]];
+journey.forEach(([name,desc,page])=>{let card=add(steps,"div",undefined,"metric");add(card,"h3",name);add(card,"p",desc,"muted");card.append(button("Open →",()=>{active=page;render()}))});
+let more=add(hero,"div",undefined,"actions");more.append(button("Open detailed Academic Toolkit",()=>{location.href="./index.html"}));
+root.prepend(hero);
+let gap=panel(root,"What needs attention now?");
+let missing=db.evidence.filter(x=>x.status==="Missing"),pending=db.evidence.filter(x=>x.status==="Pending"),unverified=db.indicators.filter(x=>x.status!=="Verified"),late=db.actions.filter(x=>x.status!=="Completed"&&x.due&&x.due<new Date().toISOString().slice(0,10));
+add(gap,"p","Missing evidence: "+missing.length+" · Pending evidence: "+pending.length+" · Unverified indicators: "+unverified.length+" · Overdue actions: "+late.length);
+if(missing.length){add(gap,"h3","Missing evidence to resolve");missing.slice(0,5).forEach(x=>add(gap,"p","• "+x.title+" — "+x.owner))}
+if(late.length){add(gap,"h3","Overdue action owners");late.slice(0,5).forEach(x=>add(gap,"p","• "+x.task+" — "+x.owner+" (due "+x.due+")"))}
+gap.append(button("Manage evidence →",()=>{active=2;render()}),button("Manage actions →",()=>{active=3;render()}));
+}
+const oldRender=render;render=function(){oldRender();leaderStart();let root=$("app");let info=HELP[active];let box=document.createElement("section");box.className="guide";let title=add(box,"h3","How to use: "+tabs[active]);add(box,"p",info[0]);add(box,"p","What to do: "+info[1]);add(box,"p","Leadership decision: "+info[2]);root.prepend(box);if(db.org.includes("DEMONSTRATION")){let b=add(box,"p","DEMONSTRATION DATA — Fictional examples only. Do not use for official reporting.","demo-banner")}};
 render();
 })();
 </script>
