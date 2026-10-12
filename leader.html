@@ -32,4 +32,69 @@ function scenarios(root){let p=panel(root,"NIRF Scenario Analysis");add(p,"p","R
 function strategy(root){register(root,"strategy","Five-Year Strategy & Milestones",strategyCols);register(root,"reviews","Governance Reviews & Follow-up",reviewCols)}
 function data(root){let p=panel(root,"Workspace and Reports");let l=add(p,"label","Institution name");let input=add(p,"input");input.value=db.org;input.onchange=()=>{db.org=input.value;save()};controls(p,[["Export complete JSON",()=>file("alis-backup.json",JSON.stringify(db,null,2),"application/json")],["Import JSON backup",()=>$("upload").click()],["Print report",()=>window.print()],["Reset workspace",()=>{if(confirm("Reset the command centre? Export first.")){db=structuredClone(demo);save();render()}}]]);add(p,"p","Exports contain all entered information. Keep backups in approved institutional storage. Browser storage is device-specific and can be cleared.","muted");let t=panel(root,"CSV reports");for(let k of ["indicators","evidence","actions","risks","nirf","strategy","reviews"])t.append(button("Export "+k,()=>file(k+".csv",csv(db[k]),"text/csv;charset=utf-8")));let x=panel(root,"Existing toolkit");let link=add(x,"a","Open full Academic Leadership Toolkit");link.href="./index.html";add(x,"p","Use the existing toolkit for detailed NAAC/NIRF, OBE, research, faculty, budgets, meeting minutes and evidence manifests. This command centre adds cross-domain oversight and verification registers.","muted")}
 $("upload").onchange=async ev=>{let f=ev.target.files?.[0];if(!f)return;try{if(f.size>8000000)throw Error("Maximum import size is 8 MB");let x=JSON.parse(await f.text());if(!x||typeof x!=="object"||Array.isArray(x)||!Array.isArray(x.indicators)||!Array.isArray(x.evidence))throw Error("Expected an ALIS backup with indicators and evidence arrays");if(!confirm("Replace this workspace with the imported backup?"))return;db=x;normalize();save();render()}catch(err){$("notice").textContent="Import failed: "+err.message}ev.target.value=""};render();
+</script>
+<style>
+.guide{background:#eaf2ff;border:1px solid #bcd3f2;border-radius:12px;padding:16px;margin-bottom:15px}
+.guide h3{margin:0 0 8px;color:#163d70}.guide p{margin:7px 0}.guide strong{color:#183b69}
+.demo-banner{background:#fff3dc;color:#805008;border:1px solid #f0d396;border-radius:9px;padding:10px 14px;margin:12px 0}
+</style>
+<script>
+(function(){
+const HELP=[
+["Executive daily briefing","Start with overdue actions, missing evidence and high-impact risks. Compare indicator verification across domains before discussing performance.","Open Action & Risk to assign an owner and due date to each priority item. Review these decisions in the next IQAC meeting."],
+["Institutional indicator management","Maintain one definition, reporting period, data source and accountable owner for each indicator. Verify figures against original records before using them in submissions.","Use consistent units and reporting years. A target is a planning value, not an externally validated score."],
+["Evidence quality assurance","Track the actual document, its owner, reporting period, version and reviewer. 'Verified' means an internal reviewer checked the record, not that an accreditor accepted it.","Prioritize missing evidence for critical indicators. Store confidential files in approved institutional systems; this dashboard stores references only."],
+["Action ownership and escalation","Every corrective action needs one accountable owner, a due date and a completion record. Review high-likelihood/high-impact risks first.","Escalate overdue actions through the appropriate academic or governance body and retain the action-taken report."],
+["Ranking improvement planning","Review NIRF TLR, RP, GO, OI and PR separately for the applicable category and assessment year. Record sources and proposed targets.","Scenario differences are illustrative planning comparisons, not official NIRF calculations or rank forecasts. Consult the relevant year's official methodology."],
+["Institutional strategy and review","Connect long-term goals to baseline, target, milestone, owner and review date. Use governance meetings to approve decisions and track follow-up.","Review strategic goals quarterly and document which interventions measurably changed institutional outcomes."],
+["Backups, privacy and reporting","Export a complete JSON backup after major updates, and CSVs for internal review. The two HTML pages currently maintain separate local datasets.","Never treat browser storage as a secure multi-user evidence repository. Keep institutional source documents and backups in approved systems."]
+];
+const SAMPLE={
+org:"Illustrative University — DEMONSTRATION DATA",
+indicators:[
+{name:"Qualified faculty share",area:"Faculty Development",framework:"NIRF TLR",period:"2025–26",value:"74",target:"85",unit:"%",owner:"Dean Academics",source:"Faculty qualification register FY26",status:"Verified"},
+{name:"Research publications",area:"Research & Innovation",framework:"NIRF RP / NAAC C3 (legacy)",period:"2025",value:"46",target:"65",unit:"count",owner:"Dean Research",source:"Publication verification register",status:"Pending"},
+{name:"Graduate placement rate",area:"Student Success",framework:"NIRF GO",period:"2024–25",value:"68",target:"80",unit:"%",owner:"Training & Placement Officer",source:"Placement and student outcome register",status:"Verified"},
+{name:"CO–PO attainment coverage",area:"Teaching & Learning",framework:"OBE / NAAC C2 (legacy)",period:"2025–26",value:"62",target:"90",unit:"%",owner:"OBE Coordinator",source:"Departmental CO–PO attainment sheets",status:"Missing"},
+{name:"Library digital access",area:"Infrastructure",framework:"NAAC C4 (legacy)",period:"2025–26",value:"82",target:"95",unit:"%",owner:"Librarian",source:"Digital resource access audit",status:"Pending"},
+{name:"IQAC action closure",area:"Governance & IQAC",framework:"NAAC C6 (legacy)",period:"2025–26",value:"70",target:"95",unit:"%",owner:"IQAC Director",source:"IQAC action-taken register",status:"Verified"},
+{name:"Research budget utilization",area:"Finance & Sustainability",framework:"Institutional strategy",period:"2025–26",value:"61",target:"85",unit:"%",owner:"Finance Officer",source:"Budget utilization statement",status:"Pending"},
+{name:"Community outreach participation",area:"Inclusion & Outreach",framework:"NAAC C7 (legacy)",period:"2025–26",value:"57",target:"75",unit:"%",owner:"Extension Coordinator",source:"Outreach attendance register",status:"Pending"}],
+evidence:[
+{title:"Faculty qualification verification",indicator:"Qualified faculty share",framework:"NIRF TLR",period:"2025–26",owner:"HR / Dean Academics",link:"Internal: HR/FAC-2026",version:"Rev-B",status:"Verified",reviewer:"IQAC Reviewer",reviewed:"2026-09-15"},
+{title:"Publication index reconciliation",indicator:"Research publications",framework:"NIRF RP",period:"2025",owner:"Dean Research",link:"Internal: RES/PUB-2025",version:"Draft-2",status:"Pending",reviewer:"",reviewed:""},
+{title:"Placement supporting records",indicator:"Graduate placement rate",framework:"NIRF GO",period:"2024–25",owner:"Placement Cell",link:"Internal: TPO/OUTCOME-25",version:"Rev-A",status:"Verified",reviewer:"IQAC Reviewer",reviewed:"2026-09-20"},
+{title:"CO–PO attainment evidence",indicator:"CO–PO attainment coverage",framework:"OBE / NAAC C2 (legacy)",period:"2025–26",owner:"Department HoDs",link:"Not yet submitted",version:"",status:"Missing",reviewer:"",reviewed:""},
+{title:"IQAC action-taken report",indicator:"IQAC action closure",framework:"NAAC C6 (legacy)",period:"2025–26",owner:"IQAC Director",link:"Internal: IQAC/ATR-26",version:"Rev-A",status:"Verified",reviewer:"Registrar",reviewed:"2026-09-29"},
+{title:"Audited research utilization",indicator:"Research budget utilization",framework:"Institutional strategy",period:"2025–26",owner:"Finance Officer",link:"Internal: FIN/RND-26",version:"Draft",status:"Pending",reviewer:"",reviewed:""}],
+actions:[
+{task:"Close missing CO–PO attainment records",area:"Teaching & Learning",owner:"OBE Coordinator",due:"2026-10-20",priority:"High",status:"Open",evidence:"Pending departmental submissions"},
+{task:"Reconcile indexed publications and affiliations",area:"Research & Innovation",owner:"Dean Research",due:"2026-10-25",priority:"High",status:"In progress",evidence:"Research register draft"},
+{task:"Conduct placement conversion review",area:"Student Success",owner:"Placement Officer",due:"2026-11-05",priority:"Medium",status:"Open",evidence:"Placement review agenda"},
+{task:"Verify faculty qualification files",area:"Faculty Development",owner:"HR Officer",due:"2026-10-08",priority:"Medium",status:"Completed",evidence:"Verified HR register"}],
+risks:[
+{risk:"Incomplete OBE evidence before internal audit",area:"Teaching & Learning",likelihood:"High",impact:"High",mitigation:"Department-wise audit and fortnightly escalation",owner:"OBE Coordinator",status:"Open"},
+{risk:"Publication records not consistently indexed",area:"Research & Innovation",likelihood:"Medium",impact:"High",mitigation:"Cross-check DOIs, author affiliations and source indexing",owner:"Dean Research",status:"In progress"},
+{risk:"Delayed release of project expenditure statements",area:"Finance & Sustainability",likelihood:"Medium",impact:"Medium",mitigation:"Monthly finance–research reconciliation",owner:"Finance Officer",status:"Open"}],
+nirf:[
+{category:"University",year:"2026",parameter:"TLR",score:"62",target:"72",source:"Illustrative planning values — methodology verification pending",status:"Unverified"},
+{category:"University",year:"2026",parameter:"RP",score:"38",target:"52",source:"Illustrative planning values — methodology verification pending",status:"Unverified"},
+{category:"University",year:"2026",parameter:"GO",score:"67",target:"75",source:"Illustrative planning values — methodology verification pending",status:"Unverified"},
+{category:"University",year:"2026",parameter:"OI",score:"71",target:"78",source:"Illustrative planning values — methodology verification pending",status:"Unverified"},
+{category:"University",year:"2026",parameter:"PR",score:"28",target:"40",source:"Illustrative planning values — methodology verification pending",status:"Unverified"}],
+strategy:[
+{goal:"Improve verified research outputs",area:"Research & Innovation",baseline:"46 publications",target:"65 publications",year:"2027",owner:"Dean Research",milestone:"Quarterly DOI and affiliation reconciliation",status:"In progress"},
+{goal:"Strengthen graduate employment outcomes",area:"Student Success",baseline:"68% placements",target:"80% placements",year:"2027",owner:"Placement Officer",milestone:"Industry engagement and internship-to-offer review",status:"Open"},
+{goal:"Complete CO–PO attainment evidence",area:"Teaching & Learning",baseline:"62% coverage",target:"90% coverage",year:"2027",owner:"OBE Coordinator",milestone:"Standardize templates and complete moderation",status:"Open"},
+{goal:"Improve verified IQAC action closure",area:"Governance & IQAC",baseline:"70%",target:"95%",year:"2027",owner:"IQAC Director",milestone:"Monthly action-taken review",status:"In progress"}],
+reviews:[
+{meeting:"IQAC quality review",date:"2026-10-15",body:"IQAC",decision:"Prioritize OBE evidence reconciliation",owner:"OBE Coordinator",due:"2026-10-20",followup:"Awaiting departmental records"},
+{meeting:"Research performance review",date:"2026-10-22",body:"Research Advisory Committee",decision:"Validate publication source records",owner:"Dean Research",due:"2026-10-25",followup:"In progress"},
+{meeting:"Institutional strategy review",date:"2026-11-02",body:"Academic Council",decision:"Review faculty development and graduate outcomes",owner:"Dean Academics",due:"2026-11-15",followup:"Scheduled"}]
+};
+function loadDemo(){if(!confirm("Load fictional demonstration records? This replaces the command-centre data in this browser. Export a backup first if needed."))return;db=JSON.parse(JSON.stringify(SAMPLE));normalize();save();render();$("notice").textContent="Demonstration loaded: fictional institutional records. Not actual NAAC or NIRF results."}
+let bar=document.createElement("div");bar.className="actions no-print";bar.id="demoTools";let load=button("Load complete demo data",loadDemo,"primary"),backup=button("Back up my data",()=>file("alis-backup.json",JSON.stringify(db,null,2),"application/json"));bar.append(load,backup);$("tabs").before(bar);
+const oldRender=render;render=function(){oldRender();let root=$("app");let info=HELP[active];let box=document.createElement("section");box.className="guide";let title=add(box,"h3","How to use: "+tabs[active]);add(box,"p",info[0]);add(box,"p","What to do: "+info[1]);add(box,"p","Leadership decision: "+info[2]);root.prepend(box);if(db.org.includes("DEMONSTRATION")){let b=add(box,"p","DEMONSTRATION DATA — Fictional examples only. Do not use for official reporting.","demo-banner")}};
+render();
+})();
 </script></body></html>
