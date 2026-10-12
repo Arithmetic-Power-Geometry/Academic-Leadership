@@ -37,7 +37,45 @@ function btn(label,fn,cls){let b=el("button",label,cls||"");b.type="button";b.ad
 function fresh(){return {orgName:"Academic Leadership — Demo",kpis:[{name:"Research output (sample)",value:"22",status:"ok"},{name:"Placement % (sample)",value:"80",status:"warn"},{name:"OBE mapping % (sample)",value:"90",status:"risk"}],todo:[],doing:[],done:[]}}
 let data;try{data=JSON.parse(localStorage.getItem(KEY))||fresh()}catch{data=fresh()}
 function normalize(){if(!data||typeof data!=="object"||Array.isArray(data))data=fresh();if(!Array.isArray(data.kpis))data.kpis=[];for(const k of [...Object.keys(fields),"todo","doing","done"])if(!Array.isArray(data[k]))data[k]=[]}
-normalize();let page="dashboard";
+normalize();
+if(!localStorage.getItem(KEY)&&!localStorage.getItem("academic-toolkit-demo-loaded-v1")){
+ const samples={
+ naac:[{crit:"C2 (legacy)",artifact:"Course outcome attainment summary",owner:"OBE Coordinator",link:"Sample reference: OBE/2025-26",status:"Pending",notes:"Fictional example; verify applicable framework"}],
+ nirf:[{cat:"University / TLR",ind:"Faculty qualifications",val:"74 (illustrative)",year:"2026",src:"Sample HR register",notes:"Not an official NIRF value"}],
+ comp:[{item:"Regulatory return review",body:"UGC",date:"2026-11-15",owner:"Registrar",status:"Open",notes:"Illustrative deadline; confirm actual schedule"}],
+ gov:[{body:"Academic Council",cadence:"Quarterly",quorum:"As per statutes",decision:"Review programme outcome attainment",evid:"Sample AC minutes",owner:"Registrar"}],
+ iqac:[{art:"IQAC action-taken report",type:"Governance",prog:"All departments",link:"Sample IQAC/ATR",owner:"IQAC Director",ver:"Demo Rev-A"}],
+ proj:[{name:"Outcome attainment improvement",owner:"Dean Academics",start:"2026-08-01",end:"2027-03-31",status:"In progress",mile:"Training → Review → Evidence closure"}],
+ obe:[{course:"Data Structures",pos:"PO1, PO2",cos:"CO1–CO4",assess:"CIA 40%; TEE 60%",evid:"Sample assessment plan",owner:"Programme Coordinator"}],
+ rs:[{type:"Publication",title:"Illustrative research output",venue:"Sample indexed journal",value:"Verification pending",year:"2025",evid:"Sample DOI register"}],
+ mou:[{type:"MoU",partner:"Illustrative Industry Partner",value:"Internships and workshops",start:"2026-01-01",end:"2027-12-31",evid:"Sample signed MoU register"}],
+ fw:[{name:"Sample Faculty Member",teach:"12",res:"8",adm:"4",fdp:"OBE workshop",notes:"Hours per week — fictional"}],
+ stu:[{prog:"B.Tech CSE",place:"68",ctc:"Illustrative only",intern:"72",mooc:"3",notes:"Fictional demonstration figures"}],
+ risk:[{risk:"Incomplete attainment evidence",like:"High",imp:"High",mit:"Department audit and evidence review",owner:"OBE Coordinator",status:"Open"}],
+ bud:[{item:"Faculty development",type:"Opex",amt:"250000",src:"Internal — sample",year:"2026",owner:"Finance Officer"}],
+ comm:[{aud:"Faculty",msg:"Submit verified CO–PO evidence",chan:"Email and review meeting",cad:"Monthly",owner:"IQAC",notes:"Sample communication plan"}],
+ todo:["Validate missing OBE records — OBE Coordinator — 2026-10-20"],
+ doing:["Reconcile publication evidence — Dean Research"],
+ done:["Create initial IQAC evidence register"]
+ };
+ Object.assign(data,samples);
+ data.orgName="Illustrative University — DEMONSTRATION DATA";
+ data["sp-vision"]="Become an evidence-led, student-centred university.";
+ data["sp-mission"]="Strengthen teaching, research, inclusion and accountable governance.";
+ data["sp-goals"]="Improve verified research output; strengthen graduate outcomes; close OBE evidence gaps.";
+ data["sp-kpis"]="Track research outputs, graduate outcomes and verified evidence quarterly.";
+ data["sp-initiatives"]="Faculty development; research support; placement partnerships.";
+ data["sp-alignment"]="Map to applicable NAAC and NIRF frameworks by reporting year.";
+ data["sp-policies"]="Academic integrity, research, inclusion and data governance.";
+ data["mt-title"]="Sample IQAC Quality Review";
+ data["mt-date"]="2026-10-15";
+ data["mt-att"]="IQAC Director; Deans; Department Coordinators";
+ data["mt-agenda"]="Evidence readiness and action closure";
+ data["mt-decisions"]="Prioritize missing OBE evidence";
+ data["mt-actions"]="OBE Coordinator to submit verification plan";
+ try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem("academic-toolkit-demo-loaded-v1","yes")}catch{}
+}
+let page="dashboard";
 function save(){data._updatedAt=new Date().toISOString();try{localStorage.setItem(KEY,JSON.stringify(data));notify("Saved locally · "+new Date().toLocaleString())}catch(e){notify("Storage full or blocked. Export JSON to avoid losing changes.",true)}}
 function notify(msg,bad=false){let t=$("toast");t.textContent=msg;t.style.color=bad?"#ad2945":"#286b4c"}
 function download(name,content,mime){let url=URL.createObjectURL(new Blob([content],{type:mime})),a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1200)}
