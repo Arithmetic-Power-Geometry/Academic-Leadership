@@ -36,7 +36,7 @@ for(let x of counts){
   let raw=String(item.value??"").replace(/,/g,"").trim(),targetRaw=String(item.target??"").replace(/,/g,"").trim();
   let actual=raw!==""?Number(raw):NaN,target=targetRaw!==""?Number(targetRaw):NaN;
   let label=item.name+" — "+raw+(item.unit?" "+item.unit:"")+" / target "+targetRaw+(item.unit?" "+item.unit:"");
-  if(!Number.isFinite(actual)||!Number.isFinite(target)||target<=0){add(r,"p",item.name+" — No comparable numeric target","muted");continue}
+  if(!Number.isFinite(actual)||!Number.isFinite(target)||target<=0){add(r,"p",item.name+" — No comparable numeric target","muted");return}
   let pct=Math.max(0,Math.min(100,actual/target*100));
   add(r,"p",label+" · "+Math.round(actual/target*100)+"% of target · "+(item.status==="Verified"?"Verified":"Provisional ("+(item.status||"Unverified")+")"));
   let actions=add(r,"div",undefined,"actions");actions.style.margin="4px 0";actions.append(button("Edit value / target",()=>{let idx=db.indicators.indexOf(item);active=1;render();edit("indicators",indicatorCols,idx)}));let bar=add(r,"div",undefined,"progress");let fill=add(bar,"span");fill.style.width=pct+"%";fill.style.background=item.status==="Verified"?"#3579c7":"#cf9236";
