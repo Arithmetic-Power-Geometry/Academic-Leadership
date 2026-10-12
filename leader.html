@@ -9,6 +9,7 @@ function normalize(){for(let k of ["indicators","evidence","actions","strategy",
 function save(){try{localStorage.setItem(STORE,JSON.stringify(db));$("notice").textContent="Saved in this browser · "+new Date().toLocaleTimeString()}catch{$("notice").textContent="Storage unavailable or full. Export a backup now."}}
 function file(name,text,type){let u=URL.createObjectURL(new Blob([text],{type})),a=e("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
 function csv(arr){let keys=[...new Set(arr.flatMap(o=>Object.keys(o)))],q=v=>'"'+String(v??"").replaceAll('"','""')+'"';return [keys.map(q).join(","),...arr.map(o=>keys.map(k=>q(o[k])).join(","))].join("\r\n")}
+function leadershipReport(root){let p=panel(root,"Leadership Report");add(p,"p","Preparing report workspace…");}
 function render(){let nav=$("tabs");nav.replaceChildren();tabs.forEach((t,i)=>nav.append(button(t,()=>{active=i;render()},i===active?"active":"")));let root=$("app");root.replaceChildren();let f=[home,indicators,evidence,actions,scenarios,strategy,data,leadershipReport][active];f(root)}
 function panel(root,title){let p=add(root,"section",undefined,"panel");add(p,"h2",title);return p}
 function controls(root,options,callback){let row=add(root,"div",undefined,"actions");for(let [name,fn] of options)row.append(button(name,fn,name.startsWith("+")?"primary":""));return row}
