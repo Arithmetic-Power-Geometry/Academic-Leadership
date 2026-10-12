@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Academic Leadership | Dashboard</title>
+<style>
+:root{color-scheme:light;--blue:#164477;--ink:#172338;--muted:#607088;--bg:#f3f6fb;--line:#dde6ef}*{box-sizing:border-box}body{margin:0;background:var(--bg);font:16px system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}header{background:var(--blue);color:#fff;padding:25px max(20px,calc((100% - 1150px)/2))}header p{opacity:.85;margin-bottom:0}.shell{max-width:1150px;margin:auto;padding:25px 18px}h1{margin:0;font-size:clamp(26px,4vw,36px)}h2{font-size:21px}button{cursor:pointer;border:1px solid #abc0d8;border-radius:9px;background:white;padding:12px 16px;font-weight:650;color:var(--blue)}button:hover{background:#e8f1fd}input{max-width:100%}.actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:18px 0}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}.card,.panel{border:1px solid var(--line);background:white;border-radius:14px;padding:19px;box-shadow:0 3px 14px #1c426610}.card small{font-size:13px;color:var(--muted)}.card strong{display:block;font-size:30px;overflow-wrap:anywhere;margin:9px 0}.state{display:inline-block;border-radius:100px;background:#eff3f8;padding:5px 9px;font-size:12px;color:#40516c}.state.ok{background:#e4f7ee;color:#12623b}.state.warn{background:#fff3d7;color:#755000}.state.risk{background:#ffebec;color:#913a40}.panel{margin-top:18px}.panel p{color:var(--muted)}.visual{display:flex;gap:10px;align-items:end;min-height:205px;border-bottom:1px solid var(--line);overflow-x:auto}.bar{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:105px;gap:7px;font-size:12px;text-align:center;color:#415772}.bar .rect{width:60px;background:#3a83da;border-radius:6px 6px 0 0;min-height:3px}footer{padding:25px 0;color:var(--muted);font-size:13px}.hint{font-size:14px}
+</style></head>
+<body><header><h1>Academic Leadership Dashboard</h1><p id="org">Demonstration workspace • Synthetic data</p></header>
+<main class="shell">
+<section class="panel"><h2>Leadership snapshot</h2><p>Explore key metrics and trends. Import an existing leadership-toolkit JSON export without uploading it to any server.</p>
+<div class="actions"><button id="choose">Import JSON</button><input id="file" type="file" accept=".json,application/json" hidden><button id="reset">Reset to demo</button><button id="download">Export visible KPIs</button></div>
+<div class="hint" id="message" role="status">Illustrative data is displayed by default. Values are not validated institutional records.</div></section>
+<section><h2>KPI overview</h2><div id="cards" class="cards" aria-live="polite"></div></section>
+<section class="panel"><h2>Numeric KPI comparison</h2><p>Bars compare absolute values and are not a common performance scale. Currency, percentages, and counts should be assessed separately.</p><div id="chart" class="visual"></div></section>
+<section class="panel"><h2>Roadmap</h2><p>Future secured modules: IQAC evidence tracking; NAAC/NIRF reporting; research and patents; OBE; placements; budgets; meeting actions; and governance.</p><p>Before using real institutional data, add authentication, role-based access, evidence verification, audit logs and secure private storage.</p></section>
+<footer>Academic Leadership • Prototype • No network upload • No persistent storage • Not an official institutional report</footer>
+</main>
+<script>
+'use strict';
+const demo={orgName:'Academic Leadership — Sample Data',kpis:[{name:'Research Output (sample)',value:'22',status:'ok'},{name:'Placement % (sample)',value:'80',status:'warn'},{name:'OBE Mapping % (sample)',value:'90',status:'risk'},{name:'Patent Count (sample)',value:'7',status:'ok'}]};
+let current=demo;
+const $=id=>document.getElementById(id);
+const text=(tag,value,cls)=>{let e=document.createElement(tag);e.textContent=String(value??'');if(cls)e.className=cls;return e};
+function render(d){
+$('org').textContent=(typeof d.orgName==='string'?d.orgName:'Institution')+' • Locally viewed data';
+$('cards').replaceChildren();$('chart').replaceChildren();
+const values=Array.isArray(d.kpis)?d.kpis.slice(0,80):[];
+for(const k of values){
+ const c=document.createElement('article');c.className='card';
+ c.append(text('small',k.name||'Unnamed metric'),text('strong',k.value??'—'),text('span',k.status||'unclassified','state '+(['ok','warn','risk'].includes(k.status)?k.status:'')));
+ $('cards').append(c);
+}
+const nums=values.map(k=>({name:String(k.name||'Metric'),value:Number(k.value)})).filter(k=>Number.isFinite(k.value)&&k.value>=0).slice(0,12);
+const max=Math.max(1,...nums.map(k=>k.value));
+for(const n of nums){let b=document.createElement('div');b.className='bar';let rect=document.createElement('div');rect.className='rect';rect.style.height=(12+155*n.value/max)+'px';b.append(text('strong',n.value),rect,text('span',n.name));$('chart').append(b)}
+if(!nums.length)$('chart').append(text('p','No numeric KPI values to plot.'));
+}
+$('choose').onclick=()=>$('file').click();
+$('file').onchange=async e=>{let file=e.target.files?.[0];if(!file)return;if(file.size>5_000_000){$('message').textContent='JSON too large for this lightweight viewer (5 MB limit).';return}try{let d=JSON.parse(await file.text());if(!d||!Array.isArray(d.kpis))throw Error('Expected a top-level kpis array');current={orgName:typeof d.orgName==='string'?d.orgName:'Institution',kpis:d.kpis.filter(k=>k&&typeof k==='object').map(k=>({name:String(k.name||''),value:String(k.value??''),status:String(k.status||'')}))};render(current);$('message').textContent='Imported locally: only KPI fields and organization name are used. Other JSON fields are ignored.'}catch(err){$('message').textContent='Could not import JSON: '+err.message}finally{$('file').value=''}};
+$('reset').onclick=()=>{current=demo;render(demo);$('message').textContent='Restored illustrative demo data.'};
+$('download').onclick=()=>{const blob=new Blob([JSON.stringify(current,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download='leadership-visible-kpis.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+render(current);
+</script></body></html>
