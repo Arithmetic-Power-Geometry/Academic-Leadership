@@ -4,13 +4,35 @@
 <main><nav class="tabs" id="tabs" aria-label="Dashboard views"></nav><div id="notice" role="status"></div><div id="app"></div><p class="foot">Local-first planning workspace. Imported records and institutional calculations require verification. No login, server database, or official accreditation scoring is provided.</p></main>
 <input id="upload" type="file" accept=".json,application/json" hidden>
 <script>
-"use strict";const STORE="alis-command-v1";const areas=["Teaching & Learning","Research & Innovation","Student Success","Faculty Development","Infrastructure","Governance & IQAC","Finance & Sustainability","Inclusion & Outreach"];const framework=["TLR","RP","GO","OI","PR"];const tabs=["Command Centre","Indicator Register","Evidence Audit","Action & Risk","NIRF Scenarios","Strategy & Reviews","Data & Reports","Leadership Report"];const demo={org:"Institution — Sample Workspace",indicators:[],evidence:[],actions:[],strategy:[],reviews:[],nirf:[],risks:[]};let db;try{db=JSON.parse(localStorage.getItem(STORE))||structuredClone(demo)}catch{db=structuredClone(demo)};let active=0;const $=id=>document.getElementById(id),e=(t,s,c)=>{let n=document.createElement(t);if(s!==undefined)n.textContent=String(s);if(c)n.className=c;return n},add=(p,t,s,c)=>{let n=e(t,s,c);p.append(n);return n},button=(s,fn,c)=>{let n=e("button",s,c);n.onclick=fn;return n};
+"use strict";const STORE="alis-command-v1";const areas=["Teaching & Learning","Research & Innovation","Student Success","Faculty Development","Infrastructure","Governance & IQAC","Finance & Sustainability","Inclusion & Outreach"];const framework=["TLR","RP","GO","OI","PR"];const tabs=["Command Centre","Indicator Register","Evidence Audit","Action & Risk","NIRF Scenarios","Strategy & Reviews","Data & Reports","Leadership Report","UMU Achievements"];const demo={org:"Institution — Sample Workspace",indicators:[],evidence:[],actions:[],strategy:[],reviews:[],nirf:[],risks:[]};let db;try{db=JSON.parse(localStorage.getItem(STORE))||structuredClone(demo)}catch{db=structuredClone(demo)};let active=0;const $=id=>document.getElementById(id),e=(t,s,c)=>{let n=document.createElement(t);if(s!==undefined)n.textContent=String(s);if(c)n.className=c;return n},add=(p,t,s,c)=>{let n=e(t,s,c);p.append(n);return n},button=(s,fn,c)=>{let n=e("button",s,c);n.onclick=fn;return n};
 function normalize(){for(let k of ["indicators","evidence","actions","strategy","reviews","nirf","risks"])if(!Array.isArray(db[k]))db[k]=[];if(typeof db.org!=="string")db.org="Institution"}normalize();
 function save(){try{localStorage.setItem(STORE,JSON.stringify(db));$("notice").textContent="Saved in this browser · "+new Date().toLocaleTimeString()}catch{$("notice").textContent="Storage unavailable or full. Export a backup now."}}
 function file(name,text,type){let u=URL.createObjectURL(new Blob([text],{type})),a=e("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
 function csv(arr){let keys=[...new Set(arr.flatMap(o=>Object.keys(o)))],q=v=>'"'+String(v??"").replaceAll('"','""')+'"';return [keys.map(q).join(","),...arr.map(o=>keys.map(k=>q(o[k])).join(","))].join("\r\n")}
 function leadershipReport(root){let p=panel(root,"Leadership Report");add(p,"p","Preparing report workspace…");}
-function render(){let nav=$("tabs");nav.replaceChildren();tabs.forEach((t,i)=>nav.append(button(t,()=>{active=i;render()},i===active?"active":"")));let root=$("app");root.replaceChildren();let f=[home,indicators,evidence,actions,scenarios,strategy,data,leadershipReport][active];f(root)}
+function umuAchievements(root){
+  let p=panel(root,"Usha Martin University — Institutional Achievements");
+  add(p,"p","Recognition and ranking highlights of Usha Martin University, Ranchi, Jharkhand, India.");
+  let wrap=add(p,"div",undefined,"twocol");
+  let naac=add(wrap,"section",undefined,"panel");
+  add(naac,"h2","NAAC Accreditation");
+  add(naac,"p","Grade A");
+  add(naac,"h3","CGPA: 3.17 / 4.00");
+  add(naac,"p","First Accreditation Cycle (Cycle 1)");
+  let qs=add(wrap,"section",undefined,"panel");
+  add(qs,"h2","QS World University Rankings 2026");
+  add(qs,"h3","World rank band: 1101–1200");
+  add(qs,"p","Southern Asia subregional rank: =362");
+  add(qs,"p","Country: India · Subregion: Southern Asia");
+  add(qs,"p","The supplied QS results image shows 1194 as a sorting index, not the world ranking position.");
+  let presenter=panel(root,"Presented by");
+  add(presenter,"h3","Dr. Mohammad Amir Khusru Akhtar");
+  add(presenter,"p","Dean Research");
+  add(presenter,"p","Director IQAC");
+  add(presenter,"p","Usha Martin University");
+  add(presenter,"p","Ranchi, Jharkhand, India");
+}
+function render(){let nav=$("tabs");nav.replaceChildren();tabs.forEach((t,i)=>nav.append(button(t,()=>{active=i;render()},i===active?"active":"")));let root=$("app");root.replaceChildren();let f=[home,indicators,evidence,actions,scenarios,strategy,data,leadershipReport,umuAchievements][active];f(root)}
 function panel(root,title){let p=add(root,"section",undefined,"panel");add(p,"h2",title);return p}
 function controls(root,options,callback){let row=add(root,"div",undefined,"actions");for(let [name,fn] of options)row.append(button(name,fn,name.startsWith("+")?"primary":""));return row}
 function metric(root,name,value,detail){let c=add(root,"div",undefined,"metric");add(c,"small",name);add(c,"strong",value);add(c,"small",detail);return c}
